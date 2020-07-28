@@ -86,15 +86,21 @@ class HashTable:
         # get index from hash
         ind= self.hash_index(key)
         # if self.storage[ind] == 0:
-        self.storage[ind]= HashTableEntry(key, value)
-        self.itemCount+= 1
+        # self.storage[ind]= HashTableEntry(key, value)
+        # self.itemCount+= 1
+
         # # if index is empty
-        # if self.storage[ind] == 0:
-        #     # add newNode
-        #     self.storage[ind]= HashTableEntry(key, value)
-        # # else: 'chain' the new node
-        # else:
-        #     self.storage[ind].next= HashTableEntry(key, value)
+        if self.storage[ind] == 0:
+            # add newNode
+            self.storage[ind]= HashTableEntry(key, value)
+        # else: 'chain' the new node
+        else: 
+            curr= self.storage[ind]
+            while curr.next:
+                curr= curr.next
+            # add new node at the end of linked-list chain
+            curr.next= HashTableEntry(key, value)
+        self.itemCount+= 1
 
 
 
@@ -107,12 +113,44 @@ class HashTable:
         Implement this.
         """
         ind= self.hash_index(key)
-        if self.storage[ind] != 0:
-            self.storage[ind]= 0
-            self.itemCount-= 1
-        else: 
-            print('Warning! That key was not found!')
-
+        # if self.storage[ind] != 0:
+        #     self.storage[ind]= 0
+        #     self.itemCount-= 1
+        # else: 
+        #     print('Warning! That key was not found!')
+        
+        # possibilities: 
+            # one node,
+            # empty,
+            # there's more than one node
+        curr= self.storage[ind]
+        prev= curr
+        if curr != 0:
+            count= 0
+            while curr.key != None:
+                if curr.key == key:
+                    # is only node?
+                    if curr.next == None and count == 0:
+                        self.storage[ind]= 0
+                        break
+                    # is first but not the only node
+                    elif curr.next != None and count == 0:
+                        self.storage[ind] = curr.next
+                        break
+                    # is last node?
+                    elif curr.next == None and count > 0:
+                        prev.next= None
+                        break
+                    # is middle node?
+                    else:
+                        prev.next = curr.next
+                        break
+                else:
+                    count+= 1
+                    prev= prev.next
+                    curr= curr.next
+        else:
+            print('Warning key not found')
 
     def get(self, key):
         """
@@ -122,27 +160,22 @@ class HashTable:
 
         Implement this.
         """
-        # get ind hash key
-        ind= self.hash_index(key)
-        if self.storage[ind] != 0:
-            return self.storage[ind].value
-        else:
-            return None
-
-        # result= []
-
-        # # if not empty
         # if self.storage[ind] != 0:
-        #     curr= self.storage[ind]
-        #     while curr:
-        #         result.append(curr.value)
-        #         curr= curr.next
-        #     return result
-
-        # # if location is empty
+        #     return self.storage[ind].value
         # else:
         #     return None
 
+        # get ind hash key
+        ind= self.hash_index(key)
+        result= None
+        # if not empty
+        if self.storage[ind] != 0:
+            curr= self.storage[ind]
+            while curr:
+                if curr.key == key:
+                    result= curr.value
+                curr= curr.next
+        return result
 
     def resize(self, new_capacity):
         """
@@ -166,10 +199,17 @@ if __name__ == "__main__":
     ht.put("line_6", "The jaws that bite, the claws that catch!")
     ht.put("line_7", "Beware the Jubjub bird, and shun")
     ht.put("line_8", 'The frumious Bandersnatch!"')
-    # ht.put("line_9", "He took his vorpal sword in hand;")
-    # ht.put("line_10", "Long time the manxome foe he sought--")
-    # ht.put("line_11", "So rested he by the Tumtum tree")
-    # ht.put("line_12", "And stood awhile in thought.")
+    ht.put("line_9", "He took his vorpal sword in hand;")
+    ht.put("line_10", "Long time the manxome foe he sought--")
+    ht.put("line_11", "So rested he by the Tumtum tree")
+    ht.put("line_12", "And stood awhile in thought.")
+
+    for i in range(1, 9):
+        print(ht.get(f"line_{i}"))
+
+    ht.delete('line_1')
+
+    print('storage: ', ht.storage)
 
     print("")
 
@@ -188,7 +228,6 @@ if __name__ == "__main__":
     # for i in range(1, 13):
     #     print(ht.get(f"line_{i}"))
 
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
 
     print("")
+
